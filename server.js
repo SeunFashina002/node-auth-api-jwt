@@ -13,6 +13,7 @@ const app = express();
 
 // middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // create database
 mongoose
@@ -29,4 +30,4 @@ mongoose
   });
 
 // routes
-app.use(authRoutes);
+app.use("/api/auth", authRoutes);
