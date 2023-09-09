@@ -20,10 +20,9 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("user", userSchema);
 
 // hash the password before saving it to the database
-userSchema.pre("save", async (next) => {
+userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
-
 module.exports = User;
