@@ -2,7 +2,6 @@ const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
 // environment variables
-
 const JWT_SECRET = process.env.JWT_SECRET;
 const NODE_ENV = process.env.NODE_ENV;
 
@@ -12,6 +11,24 @@ const generateToken = (id) => {
   return jwt.sign({ id }, JWT_SECRET, {
     expiresIn: maxAge,
   });
+};
+
+// handle errors
+const handleErrors = (err) => {
+  let errors = { email: "", password: "" };
+  // duplicate email error
+  if (err.code === 11000) {
+    errors.email = "user with this email exists";
+    return errors;
+  }
+
+  if (err.message.includes("user validation failed")) {
+    Object.values(err.errors).forEach(({ properties }) => {
+      errors[properties.path] = properties.message;
+    });
+  }
+
+  return errors;
 };
 const signup = async (req, res) => {
   const { email, password } = req.body;
@@ -29,7 +46,8 @@ const signup = async (req, res) => {
 
     res.status(201).json({ success: true, data: user });
   } catch (err) {
-    res.status(400).json({ success: false, error: err.message });
+    const errors = handleErrors(err);
+    res.status(400).json({ success: false, errors: errors });
   }
 };
 
