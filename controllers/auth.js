@@ -13,6 +13,17 @@ const generateToken = (id) => {
   });
 };
 
+// set cookies
+
+const setJwtCookies = (res, token) => {
+  res.cookie("token", token, {
+    httpOnly: NODE_ENV === "development" ? false : true,
+    secure: NODE_ENV === "development" ? false : true,
+    maxAge: maxAge * 1000, //3days in milliseconds
+    sameSite: "Strict", // Prevents CSRF
+  });
+};
+
 // handle errors
 const handleErrors = (err) => {
   let errors = { email: "", password: "" };
@@ -34,15 +45,11 @@ const signup = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.create({ email, password });
+
     const token = generateToken(user._id);
 
     // add token to response header as a cookie
-    res.cookie("token", token, {
-      httpOnly: NODE_ENV === "development" ? false : true,
-      secure: NODE_ENV === "development" ? false : true,
-      maxAge: maxAge * 1000, //3days in milliseconds
-      sameSite: "Strict", // Prevents CSRF
-    });
+    setJwtCookies(res, token);
 
     res.status(201).json({ success: true, data: user });
   } catch (err) {
@@ -52,7 +59,20 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  res.send("login");
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.login(email, password);
+
+    const token = generateToken(user._id);
+
+    // add token to response header as a cookie
+    setJwtCookies(res, token);
+    res.status(201).json({ success: true, data: user });
+  } catch (err) {
+    const errors = handleErrors(err);
+    res.status(400).json({ success: false, errors: errors });
+  }
 };
 
 module.exports = {
