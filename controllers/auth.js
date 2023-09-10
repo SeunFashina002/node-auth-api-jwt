@@ -75,7 +75,16 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: NODE_ENV === "development" ? false : true,
+    secure: NODE_ENV === "development" ? false : true,
+    maxAge: 1, //3days in milliseconds
+    sameSite: "Strict", // Prevents CSRF
+  });
+};
 module.exports = {
   signup,
   login,
+  logout,
 };
