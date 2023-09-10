@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
+const isAuthenticated = require("./middlewares/auth");
 
 // environment variables
 MONGODB_URL = process.env.MONGODB_URL;
@@ -14,6 +15,7 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(isAuthenticated);
 
 // create database
 mongoose
