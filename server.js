@@ -4,6 +4,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
+const productRoutes = require("./routes/product");
 const isAuthenticated = require("./middlewares/auth");
 
 // environment variables
@@ -15,7 +16,7 @@ const app = express();
 // middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(isAuthenticated);
+app.use("/api/products", isAuthenticated);
 
 // create database
 mongoose
@@ -33,3 +34,4 @@ mongoose
 
 // routes
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
